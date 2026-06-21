@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Simple Blogging Web App{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav>
+     <div class="nav-left">
+        <a href="{{ url_for('blogs.blog_page') }}">Home</a>
+        <a href="{{ url_for('blogs.blog_page') }}">Blogs</a>
+     </div>
+
+     <div class="nav-right">
+        {% if session.get('user_id') %}
+            {% if session.get('is_admin') %}
+                <a href="{{ url_for('admin.admin_dashboard') }}">Admin Dashboard</a>
+            {% endif %}
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+        {% else %}
+            <a href="{{ url_for('auth.login') }}">Login</a>
+            <a href="{{ url_for('auth.register') }}">Register</a>
+        {% endif %}
+     </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Page Content -->
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        &copy; 2025 Simple Blog | Made with Flask
+    </footer>
+
+</body>
+</html>

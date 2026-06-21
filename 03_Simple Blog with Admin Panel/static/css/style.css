@@ -1,0 +1,584 @@
+ /* General Reset */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Navbar */
+nav {
+    background-color: #444;
+    color: #fff;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 15px;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* Container */
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+/* Form Containers */
+.form-container, .edit-form, .blog-form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* ✅ Fix: Ensure long lines in textarea wrap correctly */
+textarea {
+    resize: vertical;
+    white-space: pre-wrap;        /* Preserve line breaks and wrap */
+    word-wrap: break-word;        /* Break long words */
+    overflow-wrap: break-word;    /* For better support */
+}
+
+/* Submit Button */
+.submit-btn {
+    padding: 10px 20px;
+    background-color: #005a87;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background-color: #003f5c;
+}
+
+/* Flash Messages */
+.flash {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.flash-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.flash-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.flash-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.flash-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+/* Blog Posts */
+.blog-post {
+    background-color: #fff;
+    border-left: 5px solid #007bff;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.blog-post h3 {
+    margin-top: 0;
+}
+
+.admin-actions {
+    margin-top: 10px;
+}
+
+.admin-actions a,
+.admin-actions button {
+    display: inline-block;
+    margin-right: 10px;
+    color: #007bff;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.admin-actions button:hover,
+.admin-actions a:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    color: #999;
+    margin-top: 30px;
+}
+
+/* Dashboard */
+.dashboard-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-section {
+    margin-bottom: 20px;
+}
+
+.blog-list, .user-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.blog-list li, .user-list li {
+    padding: 5px 0;
+}
+
+.promote-btn {
+    font-size: 0.9em;
+    padding: 3px 6px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.promote-btn:hover {
+    background-color: #218838;
+}
+
+/* Error Messages */
+.error {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 4px;
+}
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ /* body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
+}
+
+nav {
+    background-color: #333;
+    color: white;
+    padding: 1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 15px;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+.container {
+     max-width: 800px;
+     margin: 20px auto;
+     padding: 0 15px;
+}
+
+.flash {
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.flash-success { background-color: #d4edda; color: #155724; }
+.flash-danger  { background-color: #f8d7da; color: #721c24; }
+.flash-warning { background-color: #fff3cd; color: #856404; }
+.flash-info    { background-color: #d1ecf1; color: #0c5460; }
+
+footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #333;
+    color: white;
+    margin-top: 30px;
+} */
+
+
+
+
+
+
+
+
+
+
+/* login */
+    /* .form-container {
+        background-color: #fff;
+        padding: 25px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        max-width: 400px;
+        margin: auto;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+        width: 100%;
+        padding: 8px;
+        font-size: 15px;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+    }
+
+    .error {
+        color: red;
+        font-size: 13px;
+        margin-top: 2px;
+    }
+
+    .submit-btn {
+        padding: 10px 20px;
+        background-color: #333;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .submit-btn:hover {
+        background-color: #555;
+    }
+
+    .form-footer {
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    .form-footer a {
+        text-decoration: none;
+        color: #0066cc;
+    }
+
+    .form-footer a:hover {
+        text-decoration: underline;
+    } */
+
+
+
+
+
+
+
+
+
+/* register */
+ /* .form-container {
+        background-color: #fff;
+        padding: 25px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        max-width: 450px;
+        margin: auto;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+        width: 100%;
+        padding: 8px;
+        font-size: 15px;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+    }
+
+    .error {
+        color: red;
+        font-size: 13px;
+        margin-top: 2px;
+    }
+
+    .submit-btn {
+        padding: 10px 20px;
+        background-color: #333;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .submit-btn:hover {
+        background-color: #555;
+    }
+
+    .form-footer {
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    .form-footer a {
+        text-decoration: none;
+        color: #0066cc;
+    }
+
+    .form-footer a:hover {
+        text-decoration: underline;
+    } */
+
+
+
+
+
+/* blogs */
+/* 
+.blog-form {
+        background-color: #fff;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        box-shadow: 0 0 8px rgba(0,0,0,0.05);
+    }
+
+    .blog-post {
+        background-color: #fff;
+        padding: 20px;
+        border-left: 4px solid #333;
+        margin-bottom: 20px;
+        border-radius: 4px;
+        box-shadow: 0 0 6px rgba(0,0,0,0.05);
+    }
+
+    .blog-post h3 {
+        margin: 0;
+        color: #333;
+    }
+
+    .blog-post small {
+        color: #777;
+    }
+
+    .blog-post p {
+        margin-top: 10px;
+        line-height: 1.6;
+    }
+
+    .admin-actions {
+        margin-top: 10px;
+    }
+
+    .admin-actions form,
+    .admin-actions a {
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    .admin-actions button {
+        background-color: #c0392b;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .admin-actions button:hover {
+        background-color: #e74c3c;
+    }
+
+    .edit-btn {
+        background-color: #2980b9;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        text-decoration: none;
+    }
+
+    .edit-btn:hover {
+        background-color: #3498db;
+    } */
+
+
+
+
+
+
+/* edi_post */
+
+/* .edit-form {
+        background-color: #fff;
+        padding: 25px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        max-width: 600px;
+        margin: auto;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    .edit-form h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    textarea {
+        width: 100%;
+        padding: 8px;
+        font-size: 15px;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+    }
+
+    .error {
+        color: red;
+        font-size: 13px;
+        margin-top: 2px;
+    }
+
+    .submit-btn {
+        padding: 10px 20px;
+        background-color: #333;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .submit-btn:hover {
+        background-color: #555;
+    }
+
+
+/* dashboard */
+
+/* .dashboard-container {
+        background-color: #fff;
+        padding: 25px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        max-width: 900px;
+        margin: auto;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    .dashboard-section {
+        margin-bottom: 30px;
+    }
+
+    .dashboard-section h3 {
+        border-bottom: 2px solid #333;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+    }
+
+    .user-list li,
+    .blog-list li {
+        margin-bottom: 8px;
+    }
+
+    .admin-label {
+        background-color: #333;
+        color: #fff;
+        font-size: 12px;
+        padding: 2px 6px;
+        border-radius: 3px;
+        margin-left: 10px;
+    }
+
+    .promote-btn {
+        font-size: 12px;
+        padding: 3px 6px;
+        background-color: #27ae60;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-left: 10px;
+    }
+
+    .promote-btn:hover {
+        background-color: #2ecc71;
+    }  */
