@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{%block title%} Weather Web App {% endblock %}</title>
+    
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="content-wrapper">
+    <header>
+        
+        <div id="top">
+           <h1>Weather Dashboard</h1>
+        </div>
+
+    </header>
+
+    <div class="text-center">
+        <form method="POST">
+            <input type="text" name="city" placeholder="Enter city name"><br><br>
+            <svg class="bi ms-1" width="20" height="20" aria-hidden="true">
+            <use xlink:href="#arrow-right-short"></use></svg>
+            <button class="btn btn-outline-secondary d-inline-flex align-items-center"  type="submit">Get Weather</button>
+        </form>
+    </div>
+
+    <div class="text-center">
+        {% if error %}
+        <p style="color: red;">{{error}}</p>
+        {% endif %}
+    </div>
+    <div class="text-center">
+        {% if weather %}
+            <h2 class="fs-2">Weather in {{ weather.city }}</h2>
+            <p>Temperature: {{ weather.temperature }}°C</p>
+            <p>Humidity: {{ weather.humidity }}%</p>
+            <p>Condition: {{ weather.description }}</p>
+            <p>Date & Time: {{ weather.datetime }}</p>
+        {% endif %}
+    </div>
+ </div>
+
+    <div id='bottom'>
+        <footer>
+           <p>Weather Web App created using Flask &copy; 2026</p>
+        </footer>
+    </div>
+</body>
+</html>
