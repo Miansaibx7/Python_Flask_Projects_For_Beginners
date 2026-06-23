@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+<h2>Checkout</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.address.label(class="form-label") }}
+        {{ form.address(class="form-control") }}
+        {% for error in form.address.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    const stripe = Stripe("{{ stripe_publishable_key }}");
+    document.querySelector("form").addEventListener("submit", function(event) {
+        event.preventDefault();
+        fetch("/payment/checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams(new FormData(event.target))
+        }).then(response => response.json()).then(session => {
+            return stripe.redirectToCheckout({ sessionId: session.id });
+        }).then(result => {
+            if (result.error) {
+                alert(result.error.message);
+            }
+        }).catch(error => {
+            console.error("Error:", error);
+        });
+    });
+</script>
+{% endblock %}
