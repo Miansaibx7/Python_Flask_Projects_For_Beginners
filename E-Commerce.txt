@@ -1,0 +1,621 @@
+
+from flask_wtf import FlaskForm
+from decimal import Decimal
+from flask_wtf.file import FileField,FileAllowed
+from wtforms import (StringField,EmailField,PasswordField,SubmitField,
+                DecimalField, IntegerField, TextAreaField, BooleanField, SelectField) 
+from wtforms.validators import DataRequired, Length, Email, EqualTo, NumberRange,ValidationError
+
+from models.database import db,User
+
+
+"""Custom validator to ensure email uniqueness."""
+def validate_unique_email(form,field):
+    if User.query.filter_by(email=field.data.lower()).first():
+        raise ValidationError("This email is already registered.")
+    
+    
+"""Custom validator to ensure username uniqueness."""
+def validate_unique_username(form,field):
+    if User.query.filter_by(username=field.data).first():
+        raise ValidationError("This username is already taken.")
+
+class RegistrationForm(FlaskForm):
+    username: str = StringField("Username",
+        validators=[DataRequired(),Length(min=3,max=50 ,message="Username must be 3-50 characters"),validate_unique_username])
+    email: str = EmailField("Email",
+        validators=[DataRequired(),Email(message="Enter a valid email"),validate_unique_email])
+    password: str = PasswordField("Password",
+        validators=[DataRequired(),Length(min=8,message="Password must be at least 8 characters")])
+    confirm_password: str = PasswordField("Confirm Your Password",
+        validators=[DataRequired(),EqualTo('password', message="Passwords must match")])
+    submit = SubmitField("Register")
+
+
+
+class LoginForm(FlaskForm):
+    email: str = EmailField("Email", validators=[DataRequired(), Email()])
+    password: str = PasswordField("Password", validators=[DataRequired(), Length(min=8)])
+    remember: bool = BooleanField("Remember me")
+    submit = SubmitField("Login")
+
+
+
+class ProductForm(FlaskForm):
+    name:str = StringField("Name",validators=[DataRequired(),Length(max=250)])
+    description:str = TextAreaField("Description")
+    price: Decimal = DecimalField("Price (USD)",places=2,rounding=None,
+             validators=[DataRequired(), NumberRange(min=0, message="Price must be non-negative")])
+    stock: int = IntegerField("Stock",
+             validators=[DataRequired(), NumberRange(min=0, message="Stock can't be negative")])
+    category = SelectField("Category",coerce=int,validators=[DataRequired()])
+    image = FileField("Product Image", validators=[FileAllowed(['jpg','jpeg','png'], 'Images only')])
+    submit = SubmitField("Save Product")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from flask import Blueprint, redirect, render_template, flash, url_for, request, current_app
+from flask_login import login_user, logout_user, login_required, current_user
+from flask_mail import Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+
+from models.database import db, User
+from forms import RegistrationForm, LoginForm
+from extensions import mail 
+
+auth_bp = Blueprint("auth", __name__, template_folder="../templates")
+
+def _generate_confirmation_token(email: str) -> str:
+    s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+    return s.dumps(email, salt=current_app.config.get("SECURITY_PASSWORD_SALT", "email-confirm-salt"))
+
+def _confirm_token(token: str, expiration=3600*24) -> str:
+    s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+    try:
+        email = s.loads(token, salt=current_app.config.get("SECURITY_PASSWORD_SALT", "email-confirm-salt"), max_age=expiration)
+    except SignatureExpired:
+        return None  # token expired
+    except BadSignature:
+        return None  # invalid token
+    return email
+
+@auth_bp.route("/register", methods=["GET", "POST"])
+def register():
+    # registration must be available to anonymous users
+    if current_user.is_authenticated:
+        return redirect(url_for("shop.product_list"))
+
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        email = form.email.data.strip().lower()
+        username = form.username.data.strip()
+
+        # uniqueness checks
+        if User.query.filter_by(email=email).first():
+            flash("Email already registered.", "danger")
+            return redirect(url_for("auth.login"))
+
+        if User.query.filter_by(username=username).first():
+            flash("Username already taken.", "danger")
+            return redirect(url_for("auth.register"))
+
+        # create user
+        user = User(username=username, email=email, role="customer", email_confirmed=False)
+        user.set_password(form.password.data)  # uses model helper that uses Werkzeug
+
+        db.session.add(user)
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.exception("DB error creating user")
+            flash("An error occurred creating your account. Try again.", "danger")
+            return redirect(url_for("auth.register"))
+
+        # Send verification email with token and verify route
+        token = _generate_confirmation_token(user.email)
+        verify_url = url_for("auth.verify_email", token=token, _external=True)
+        msg = Message("Verify your email", sender=current_app.config.get("MAIL_DEFAULT_SENDER", "noreply@example.com"), recipients=[user.email])
+        msg.body = f"Thanks for registering. Verify your email by clicking: {verify_url}\n\nIf you didn't register, ignore this message."
+        try:
+            mail.send(msg)
+        except Exception as e:
+            current_app.logger.exception("Failed to send verification email")
+            # Not critical to block registration, but warn user
+            flash("Account created but failed to send verification email. Contact support.", "warning")
+            return redirect(url_for("auth.login"))
+
+        flash("Registration successful! Please check your email to verify your account.", "success")
+        return redirect(url_for("auth.login"))
+
+    return render_template("register.html", form=form)
+
+
+@auth_bp.route("/verify/<token>")
+def verify_email(token):
+    email = _confirm_token(token)
+    if not email:
+        flash("The confirmation link is invalid or has expired.", "danger")
+        return redirect(url_for("auth.login"))
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        flash("Account not found.", "danger")
+        return redirect(url_for("auth.register"))
+
+    if user.email_confirmed:
+        flash("Account already confirmed. Please login.", "info")
+        return redirect(url_for("auth.login"))
+
+    user.email_confirmed = True
+    user.email_confirmed_at = db.func.now()
+    db.session.commit()
+    flash("Email verified! You can now login.", "success")
+    return redirect(url_for("auth.login"))
+
+
+@auth_bp.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for("shop.product_list"))
+
+    form = LoginForm()
+    if form.validate_on_submit():
+        email = form.email.data.strip().lower()
+        user = User.query.filter_by(email=email).first()
+        if user and user.check_password(form.password.data):
+            # optional: check email_confirmed
+            if not user.email_confirmed:
+                flash("Please verify your email before logging in.", "warning")
+                return redirect(url_for("auth.login"))
+
+            # login_user allows remember option if present in form
+            remember = getattr(form, "remember", None)
+            remember_val = False
+            if remember is not None:
+                remember_val = remember.data
+
+            login_user(user, remember=remember_val)
+
+            flash("Login successful!", "success")
+
+            # safe redirect: use next only if it's a relative path
+            next_page = request.args.get("next")
+            if next_page and next_page.startswith("/"):
+                return redirect(next_page)
+            return redirect(url_for("shop.product_list"))
+        flash("Invalid email or password.", "danger")
+
+    return render_template("login.html", form=form)
+
+
+@auth_bp.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    flash("You have been logged out.", "success")
+    return redirect(url_for("auth.login"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# database.py
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
+from sqlalchemy import CheckConstraint, Index
+from decimal import Decimal
+
+db = SQLAlchemy()
+
+class User(db.Model):
+    """User model for authentication and user management"""
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(250), unique=True, nullable=False, index=True)
+    email = db.Column(db.String(200), unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)
+    role = db.Column(db.String(50), default='customer', nullable=False)  # 'customer' or 'admin'
+    email_confirmed = db.Column(db.Boolean, default=False)
+    email_confirmed_at = db.Column(db.DateTime, nullable=True)
+
+    # Relationships
+    products = db.relationship('Product', backref='seller', lazy=True)
+    orders = db.relationship('Order', backref='buyer', lazy=True)
+
+    def set_password(self, password: str):
+        """Create hashed password"""
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password: str) -> bool:
+        """Check hashed password"""
+        return check_password_hash(self.password_hash, password)
+    
+    def is_admin(self) -> bool:
+        return self.role == 'admin'
+    
+    def __repr__(self):
+        return f'<User {self.username}>'
+
+class Category(db.Model):
+    """Product category model"""
+    __tablename__ = 'categories'
+    __table_args__ = (
+        Index('ix_category_name', "name"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    slug = db.Column(db.String(60), unique=True, nullable=False)  # for clean URLs
+    description = db.Column(db.Text)
+    
+    products = db.relationship('Product', backref='product_category', lazy=True)
+    
+    def __repr__(self):
+        return f'<Category {self.name}>'
+
+class Product(db.Model):
+    """Product model for e-commerce"""
+    __tablename__ = 'products'
+    __table_args__ = (
+        CheckConstraint('price >= 0', name='ck_products_price_nonnegative'),
+        CheckConstraint('stock >= 0', name='ck_products_stock_nonnegative'),
+        Index('ix_products_name', 'name'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(250), nullable=False)
+    description = db.Column(db.Text)
+    price = db.Column(db.Numeric(10, 2), nullable=False)  # Decimal for money
+    stock = db.Column(db.Integer, nullable=False, default=0)
+    image_path = db.Column(db.String(255))  # Path to uploaded image
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Foreign keys
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    def __repr__(self):
+        return f'<Product {self.name}>'
+
+class Order(db.Model):
+    """Order header model"""
+    __tablename__ = 'orders'
+    __table_args__ = (
+        Index('ix_orders_user_created', 'user_id', 'created_at'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    total_price = db.Column(db.Numeric(12, 2), nullable=False)
+    status = db.Column(db.String(50), default='Pending', nullable=False)  # Pending, Processing, Shipped, Paid, Cancelled
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    stripe_session_id = db.Column(db.String(255), nullable=True)  # store stripe session / payment ids
+    payment_id = db.Column(db.String(255), nullable=True)  # provider-specific payment id
+
+    items = db.relationship('OrderItem', backref='order', cascade='all, delete-orphan', lazy=True)
+
+    def __repr__(self):
+        return f'<Order {self.id} - {self.status} - User {self.user_id}>'
+
+class OrderItem(db.Model):
+    """Line item for each order"""
+    __tablename__ = 'order_items'
+    __table_args__ = (
+        CheckConstraint('quantity > 0', name='ck_order_items_qty_positive'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id', ondelete='CASCADE'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    product_name = db.Column(db.String(250), nullable=False)  # snapshot of product name
+    unit_price = db.Column(db.Numeric(10, 2), nullable=False)  # snapshot of price
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+
+    product = db.relationship('Product')
+
+    def line_total(self) -> Decimal:
+        return Decimal(self.unit_price) * self.quantity
+
+    def __repr__(self):
+        return f'<OrderItem {self.id} - Order {self.order_id} - Product {self.product_id}>'
+
+class Payment(db.Model):
+    """Record for payments (optional)"""
+    __tablename__ = 'payments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id', ondelete='SET NULL'), nullable=True)
+    provider = db.Column(db.String(50), nullable=False)  # e.g., 'stripe'
+    provider_payment_id = db.Column(db.String(255), nullable=False)
+    amount = db.Column(db.Numeric(12, 2), nullable=False)
+    currency = db.Column(db.String(10), default='USD')
+    status = db.Column(db.String(50), nullable=False)  # succeeded, failed, pending
+    metadata = db.Column(db.JSON, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    order = db.relationship('Order')
+
+    def __repr__(self):
+        return f'<Payment {self.provider} {self.provider_payment_id} - {self.status}>'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from flask_wtf import FlaskForm
+from decimal import Decimal
+from flask_wtf.file import FileField, FileAllowed, FileRequired
+from wtforms import (StringField, EmailField, PasswordField, SubmitField,
+                    DecimalField, IntegerField, TextAreaField, BooleanField, SelectField) 
+from wtforms.validators import DataRequired, Length, Email, EqualTo, NumberRange, ValidationError
+from models.database import User
+import re
+
+def validate_password_strength(form, field):
+    """Validate that the password has at least one digit and one special character."""
+    if not re.search(r'\d', field.data):
+        raise ValidationError("Password must contain at least one digit")
+    if not re.search(r'[^A-Za-z0-9]', field.data):
+        raise ValidationError("Password must contain at least one special character")
+
+def validate_unique_email(form, field):
+    """Custom validator to ensure email uniqueness."""
+    if User.query.filter_by(email=field.data.lower()).first():
+        raise ValidationError("This email is already registered. Please use a different email.")
+    
+def validate_unique_username(form, field):
+    """Custom validator to ensure username uniqueness."""
+    if User.query.filter_by(username=field.data).first():
+        raise ValidationError("This username is already taken. Please choose another.")
+
+class RegistrationForm(FlaskForm):
+    username = StringField("Username",
+        validators=[
+            DataRequired(message="Username is required"),
+            Length(min=3, max=50, message="Username must be between 3-50 characters"),
+            validate_unique_username
+        ])
+    email = EmailField("Email",
+        validators=[
+            DataRequired(message="Email is required"),
+            Email(message="Please enter a valid email address"),
+            validate_unique_email
+        ])
+    password = PasswordField("Password",
+        validators=[
+            DataRequired(message="Password is required"),
+            Length(min=8, message="Password must be at least 8 characters long"),
+            validate_password_strength
+        ])
+    confirm_password = PasswordField("Confirm Password",
+        validators=[
+            DataRequired(message="Please confirm your password"),
+            EqualTo('password', message="Passwords do not match")
+        ])
+    submit = SubmitField("Register")
+
+class LoginForm(FlaskForm):
+    email = EmailField("Email", 
+        validators=[
+            DataRequired(message="Email is required"), 
+            Email(message="Please enter a valid email address")
+        ])
+    password = PasswordField("Password", 
+        validators=[
+            DataRequired(message="Password is required"), 
+            Length(min=8, message="Password must be at least 8 characters")
+        ])
+    remember = BooleanField("Remember me")
+    submit = SubmitField("Login")
+
+
+class ResendVerificationForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    submit = SubmitField("Resend Verification Email")
+
+class PasswordResetRequestForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    submit = SubmitField("Request Password Reset")
+
+class PasswordResetForm(FlaskForm):
+    password = PasswordField("New Password", validators=[DataRequired(), Length(min=8)])
+    confirm_password = PasswordField("Confirm New Password", validators=[DataRequired(), EqualTo("password")])
+    submit = SubmitField("Reset Password")
+
+
+
+class ProductForm(FlaskForm):
+    name = StringField("Product Name",
+        validators=[
+            DataRequired(message="Product name is required"),
+            Length(max=250, message="Product name cannot exceed 250 characters")
+        ])
+    description = TextAreaField("Description")
+    
+    price = DecimalField("Price (USD)",
+        places=2,
+        rounding=Decimal.ROUND_HALF_UP,
+        validators=[
+            DataRequired(message="Price is required"),
+            NumberRange(min=0, message="Price must be a positive number")
+        ])
+    stock = IntegerField("Stock Quantity",
+        validators=[
+            DataRequired(message="Stock quantity is required"),
+            NumberRange(min=0, message="Stock cannot be negative")
+        ])
+    category = SelectField("Category",
+        coerce=int,
+        validators=[DataRequired(message="Please select a category")])
+    image = FileField("Product Image",
+        validators=[
+            FileAllowed(['jpg', 'jpeg', 'png'], 'Only JPEG, JPG, or PNG images are allowed'),
+            FileRequired(message="Product image is required")
+        ])
+    submit = SubmitField("Save Product")
+
