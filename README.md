@@ -12,9 +12,9 @@ A fully functional note-taking application with user authentication.
 - Create, edit, and delete notes
 - Markdown support for note formatting
 - SQLite database for data persistence
-- Responsive UI with custom CSS
+- Responsive UI with custom CSS.
 
-**Tech Stack:** Flask, Flask-SQLAlchemy, Flask-WTF, Markdown2, SQLite, HTML5, CSS3, JavaScript
+**Tech Stack:** Flask, Flask-SQLAlchemy, Flask-WTF, Markdown2, SQLite, HTML5, CSS3, JavaScript.
 
 ---
 
