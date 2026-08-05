@@ -3,11 +3,8 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, Float
 from wtforms.validators import DataRequired, Email, Length, EqualTo, Regexp, NumberRange
 
 class RegistrationForm(FlaskForm):
-    username = StringField("Username", validators=[
-        DataRequired(),
-        Length(min=3, max=20),
-        Regexp(r"^[a-zA-Z0-9_]+$", message="Username must contain only letters, numbers, or underscores")
-    ])
+    username = StringField("Username", validators=[DataRequired(),Length(min=3, max=20),
+        Regexp(r"^[a-zA-Z0-9_]+$", message="Username must contain only letters, numbers, or underscores")])
     email = StringField("Email", validators=[DataRequired(), Email()])
     password = PasswordField("Password", validators=[DataRequired(), Length(min=8)])
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password")])
