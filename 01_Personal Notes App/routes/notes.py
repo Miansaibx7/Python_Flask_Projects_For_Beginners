@@ -4,6 +4,7 @@ from formwtf import NoteForm
 
 notes = Blueprint('notes', __name__)
 
+
 @notes.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     if 'user_id' not in session:
@@ -21,6 +22,7 @@ def dashboard():
     
     return render_template("dashboard.html", user=user, notes=user.notes, form=form)
 
+
 @notes.route('/delete_note/<int:id>')
 def delete_note(id):
     note = Note.query.get_or_404(id)
@@ -31,6 +33,7 @@ def delete_note(id):
     db.session.commit()
     flash("Note deleted", "info")
     return redirect(url_for("notes.dashboard"))
+
 
 @notes.route('/edit_note/<int:id>', methods=['GET', 'POST'])
 def edit_note(id):
