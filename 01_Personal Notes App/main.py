@@ -1,4 +1,4 @@
-# app.py
+
 from flask import Flask
 from models.database import db
 from routes.auth import auth
