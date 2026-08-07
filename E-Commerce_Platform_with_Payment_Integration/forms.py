@@ -42,6 +42,7 @@ class ProductForm(FlaskForm):
     category = StringField("Category", validators=[DataRequired(), Length(max=50)])
     submit = SubmitField("Save Product")
 
+
 class CheckoutForm(FlaskForm):
     address = TextAreaField("Shipping Address", validators=[DataRequired()])
     submit = SubmitField("Proceed to Payment")
