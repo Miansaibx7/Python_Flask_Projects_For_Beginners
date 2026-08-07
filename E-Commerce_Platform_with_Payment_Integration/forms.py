@@ -22,6 +22,7 @@ class ResendVerificationForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])
     submit = SubmitField("Resend Verification Email")
 
+
 class PasswordResetRequestForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])
     submit = SubmitField("Request Password Reset")
