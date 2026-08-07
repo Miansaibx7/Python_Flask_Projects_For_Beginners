@@ -5,7 +5,7 @@ class Config:
     SECURITY_PASSWORD_SALT = os.environ.get("SECURITY_PASSWORD_SALT", "email-confirm-salt")
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL",
-        "mysql+pymysql://root:Waqas%4013579@localhost/ecommerce_db"
+        "mysql+pymysql://" # username:password@localhost/dbname"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
