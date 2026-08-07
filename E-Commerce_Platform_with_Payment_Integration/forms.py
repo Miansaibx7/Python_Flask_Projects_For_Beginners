@@ -33,6 +33,7 @@ class PasswordResetForm(FlaskForm):
     confirm_password = PasswordField("Confirm New Password", validators=[DataRequired(), EqualTo("password")])
     submit = SubmitField("Reset Password")
 
+
 class ProductForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired(), Length(max=100)])
     description = TextAreaField("Description")
