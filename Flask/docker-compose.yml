@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  flask_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: beginner_flask_app
+    ports:
+      - "5000:5000"
+      
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+
+    volumes:
+      # This syncs your local files with the container
+      # You won't need to rebuild the container when you edit your Python code!
+      - .:/app

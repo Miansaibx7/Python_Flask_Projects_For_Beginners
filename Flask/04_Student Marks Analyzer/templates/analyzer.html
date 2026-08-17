@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Analysis Results</h2>
+
+    <div class="form-container">
+        <h4>Summary</h4>
+        <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; text-align: center;">
+            <tr>
+                <th>Average</th>
+                <th>Maximum</th>
+                <th>Minimum</th>
+            </tr>
+            <tr>
+                <td>{{ average }}</td>
+                <td>{{ maximum }}</td>
+                <td>{{ minimum }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="form-container">
+        <h4>Marks Chart</h4>
+        <canvas id="marksChart"
+                data-labels='{{ labels | tojson | safe }}'
+                data-marks='{{ marks | tojson | safe }}'
+                width="100%" height="40"></canvas>
+        <img src="{{ chart_path }}" alt="Average Chart" style="margin-top:10px;">
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='Js/Scripts.js') }}"></script>
+{% endblock %}

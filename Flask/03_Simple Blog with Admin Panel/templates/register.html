@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Simple Blog {% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2 style="text-align: center;">Register</h2>
+     
+    <form method="POST" action="{{ url_for('auth.register') }}" >
+     {{ form.hidden_tag() }}
+
+          <div class="form-group">
+            {{ form.name.label }}
+            {{ form.name }}
+            {% for error in form.name.errors %}
+               <div class="error">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="form-group">
+            {{ form.email.label }}
+            {{ form.email}}
+            {% for error in form.email.errors%}
+              <div class="error">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="form-group">
+            {{ form.password.label }}
+            {{ form.password }}
+            {% for error in form.password.errors %}
+              <div class="error">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div style="text-align: center;">
+            {{form.submit(class_="submit-btn")}}
+          </div>
+    </form>
+
+    <div class="form-footer">
+      Already have account? <a href="{{ url_for('auth.login') }}">Login here</a>.
+    </div>
+</div>
+{% endblock %}
+
+

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}All Blogs - Simple Blog{% endblock %}
+
+{% block content %}
+    <!-- Blog Form Section -->
+    <div class="blog-form">
+        <h2>Create a New Blog</h2>
+        <form method="POST" action="{{ url_for('blogs.blog_page') }}">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                {{ form.title.label }}
+                {{ form.title(size=50) }}
+                {% for error in form.title.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                {{ form.content.label }}
+                {{ form.content(rows=5, cols=50) }}
+                {% for error in form.content.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div style="text-align: center;">
+                {{ form.submit(class="submit-btn") }}
+            </div>
+        </form>
+    </div>
+
+    <hr>
+
+    <!-- Blog Listing Section -->
+    <div class="blog-listing">
+        <h2>Recent Blogs</h2>
+
+        {% if blogs %}
+            {% for blog in blogs %}
+                <div class="blog-post">
+                    <h3>{{ blog.title }}</h3>
+                    <small>by {{ blog.author.name }}</small>
+                    <p>{{ blog.content }}</p>
+
+                    {% if session.get('is_admin') %}
+                        <div class="admin-actions">
+                            <a class="edit_btn" href="{{ url_for('blogs.edit_blog', blog_id=blog.id) }}">Edit</a>
+                            <form method="POST" action="{{ url_for('blogs.delete_blog', blog_id=blog.id) }}" 
+                                  onsubmit="return confirm('Are you sure you want to delete this post?');">
+                                {{ form.hidden_tag() }}
+                                <button type="submit">Delete</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No blog posts yet. Be the first to write!</p>
+        {% endif %}
+    </div>
+{% endblock %}

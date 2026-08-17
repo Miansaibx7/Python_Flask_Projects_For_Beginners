@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Simple Blog{% endblock %}
+
+{% block content %}
+
+    <div class="form-container">
+        <h2 style="text-align: center;">Login</h2>
+           
+            <form method="POST" action="{{url_for('auth_.login')}}"> 
+                {{ form.hidden_tag()}}
+
+                <div class="form-group">
+                   {{ form.email.label }}
+                   {{ form.email }}
+                   {% for error in form.email.errors %}
+                        <div class="error">{{error}}</div>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ form.password.label }}
+                    {{ form.password }}
+                    {% for error in form.password.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div style="text-align: center;">
+                    {{form.submit(class_='submit-btn')}}
+                </div>
+            </form>
+
+        <div class='form-footer'>
+              Don't have an account? <a href="{{url_for('auth.register')}}">Register Here</a>
+        </div>
+    </div>
+             
+{% endblock %}

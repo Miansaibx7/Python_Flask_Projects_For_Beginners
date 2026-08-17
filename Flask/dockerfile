@@ -1,0 +1,33 @@
+# Use a lightweight, official Python image to keep the container small and fast
+FROM python:3.11-slim
+
+# Set environment variables to optimize Python inside Docker
+# 1. Prevents Python from writing .pyc files to disk
+# 2. Ensures console output isn't buffered (so you see logs immediately)
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy only the requirements file first. 
+# This takes advantage of Docker caching so you don't reinstall dependencies 
+# every time you change a line of code.
+COPY requirements.txt .
+
+# Install the Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of your application code into the container
+COPY . .
+
+# Expose port 5000 (Flask's default port)
+EXPOSE 5000
+
+# Set the default Flask application file 
+# (Change 'app.py' to 'main.py' if your entry file is named differently)
+ENV FLASK_APP=app.py
+
+# Run the Flask server and bind it to all network interfaces
+# so it can be accessed from outside the Docker container
+CMD ["flask", "run", "--host=0.0.0.0"]

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Simple Blog{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2 style="text-align: center;">Admin Dashboard</h2>
+
+    <!-- Blog Edit Form (if applicable) -->
+    {% if form %}
+        <div class="edit-form">
+            <h3>Edit Blog Post</h3>
+            <form method="POST" action="{{ url_for('admin.edit_blog_admin', blog_id=blog.id) }}">
+                {{ form.hidden_tag() }}
+
+                <div class="form-group">
+                    {{ form.title.label }}
+                    {{ form.title(size=60) }}
+                    {% for error in form.title.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.content.label }}
+                    {{ form.content(rows=8, cols=60) }}
+                    {% for error in form.content.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                {{ form.submit(class="submit-btn") }}
+            </form>
+        </div>
+        <hr>
+    {% endif %}
+
+ <!-- Recent Blog Posts -->
+    <div class="dashboard-section">
+        <h3>Recent Blog Posts</h3>
+        <ul class="blog-list">
+            {% for blog in blogs %}
+                <li>
+                    <strong>{{ blog.title }}</strong> by {{ blog.author.name }}
+                    <a href="{{ url_for('admin.edit_blog_admin', blog_id=blog.id) }}">(Edit)</a>
+                </li>
+            {% else %}
+                <li>No recent blogs found.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Registered Users -->
+    <div class="dashboard-section">
+        <h3>Registered Users</h3>
+        <ul class="user-list">
+            {% for user in users %}
+                <li>
+                    {{ user.name }}
+                    {% if user.is_admin %}
+                        <span class="admin-label">Admin</span>
+                    {% else %}
+                        <a class='promote-btn' href="{{ url_for('admin.promote_user', user_id=user.id) }}">Promote to Admin</a>
+                    {% endif %}
+                </li>
+            {% else %}
+                <li>No users registered yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
