@@ -80,7 +80,7 @@ A full-featured online store with product management, shopping cart functionalit
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Recommended)
 - Git
 
-### Option 1: Run with Docker (Recommended)
+### Run with Docker (Recommended)
 This method ensures you don't have to manually install any Python dependencies on your machine. Each project contains its own isolated container.
 
 1. Navigate into the specific project folder you want to run:
@@ -88,22 +88,22 @@ This method ensures you don't have to manually install any Python dependencies o
    cd "E-Commerce_Platform_with_Payment_Integration"
 Build and start the container:
 
-Bash
+###  Bash
 docker-compose up -d --build
 Open your web browser and go to: http://localhost:5000
 
 (To stop the server, run docker-compose down in the terminal).
 
-Option 2: Run Locally (Without Docker)
+### Run Locally (Without Docker)
 If you prefer to run the applications directly on your machine using a virtual environment:
 
 Navigate to the project directory:
 
-Bash
+### Bash
 cd "01_Personal Notes App"
 Create and activate a virtual environment:
 
-Bash
+### Bash
 python -m venv venv
 
 # On Windows:
@@ -113,18 +113,18 @@ venv\Scripts\activate
 source venv/bin/activate
 Install the required dependencies:
 
-Bash
+### Bash
 pip install -r requirements.txt
 Start the Flask development server:
 
-Bash
+###  Bash
 flask run --debug
 View the app at: http://127.0.0.1:5000
 
 Note: For projects requiring APIs (like Stripe in the E-Commerce app or Weather APIs), you will need to create a .env file in that project's folder to store your secret keys before running.
 
-🤝 Contributing
+# 🤝 Contributing
 Feel free to fork this repository, explore the code, and submit pull requests if you have suggestions for improvements or want to add a new beginner project!
 
-📝 License
+# 📝 License
 This project is open-source and available under the MIT License.
